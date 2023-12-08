@@ -1,0 +1,99 @@
+import java.io.*;
+import java.math.*;
+import java.security.*;
+import java.text.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.function.*;
+import java.util.regex.*;
+import java.util.stream.*;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+
+class Result {
+
+    /*
+     * Complete the 'weightedUniformStrings' function below.
+     *
+     * The function is expected to return a STRING_ARRAY.
+     * The function accepts following parameters:
+     *  1. STRING s
+     *  2. INTEGER_ARRAY queries
+     */
+
+     public static List<String> weightedUniformStrings(String s, List<Integer> queries) {
+        // Create a set to store unique weights of substrings
+        Set<Integer> weights = new HashSet<>();
+        
+        // Initialize variables to keep track of the current character and its weight
+        char currentChar = s.charAt(0);
+        int currentWeight = currentChar - 'a' + 1; // Initial weight
+        weights.add(currentWeight);
+        
+        // Iterate through the string to calculate weights and store them
+        for (int i = 1; i < s.length(); i++) {
+            char nextChar = s.charAt(i);
+            int nextWeight = nextChar - 'a' + 1;
+            
+            if (nextChar == currentChar) {
+                // If the current character repeats, update the weight accordingly
+                currentWeight += nextWeight;
+            } else {
+                // If the next character is different, reset the current weight
+                currentChar = nextChar;
+                currentWeight = nextWeight;
+            }
+            
+            // Add the calculated weight to the set
+            weights.add(currentWeight);
+        }
+        
+        // Create a list to store the query results
+        List<String> results = new ArrayList<>();
+        
+        // Check if each query weight exists in the set
+        for (int query : queries) {
+            if (weights.contains(query)) {
+                results.add("Yes");
+            } else {
+                results.add("No");
+            }
+        }
+        
+        return results;
+    }
+}
+
+
+public class Solution {
+    public static void main(String[] args) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
+
+        String s = bufferedReader.readLine();
+
+        int queriesCount = Integer.parseInt(bufferedReader.readLine().trim());
+
+        List<Integer> queries = IntStream.range(0, queriesCount).mapToObj(i -> {
+            try {
+                return bufferedReader.readLine().replaceAll("\\s+$", "");
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        })
+            .map(String::trim)
+            .map(Integer::parseInt)
+            .collect(toList());
+
+        List<String> result = Result.weightedUniformStrings(s, queries);
+
+        bufferedWriter.write(
+            result.stream()
+                .collect(joining("\n"))
+            + "\n"
+        );
+
+        bufferedReader.close();
+        bufferedWriter.close();
+    }
+}
